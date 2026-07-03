@@ -29,17 +29,11 @@ export const ASSETS: Record<string, string> = {
   "skin_wall_wash": new URL("./assets/sprite/sprite_skin-wall-wash_bc3055.webp", import.meta.url).href,
   "skin_wood_deep": new URL("./assets/sprite/sprite_skin-wood-deep_3d0463.webp", import.meta.url).href,
   "skin_wood_plank": new URL("./assets/sprite/sprite_skin-wood-plank_907e7b.webp", import.meta.url).href,
-  "tex_cardboard": new URL("./assets/sprite/sprite_tex-cardboard_d55595.webp", import.meta.url).href,
   "tex_cardboard_flat": new URL("./assets/sprite/sprite_tex-cardboard-flat_55c6f5.webp", import.meta.url).href,
-  "tex_ceramic": new URL("./assets/sprite/sprite_tex-ceramic_e3f72e.webp", import.meta.url).href,
   "tex_ceramic_flat": new URL("./assets/sprite/sprite_tex-ceramic-flat_f45292.webp", import.meta.url).href,
-  "tex_fabric_cream": new URL("./assets/sprite/sprite_tex-fabric-cream_41e780.webp", import.meta.url).href,
   "tex_fabric_cream_flat": new URL("./assets/sprite/sprite_tex-fabric-cream-flat_884ff6.webp", import.meta.url).href,
-  "tex_fabric_rose": new URL("./assets/sprite/sprite_tex-fabric-rose_c9cf7d.webp", import.meta.url).href,
   "tex_fabric_rose_flat": new URL("./assets/sprite/sprite_tex-fabric-rose-flat_694d6d.webp", import.meta.url).href,
-  "tex_wood_deep": new URL("./assets/sprite/sprite_tex-wood-deep_c2c59b.webp", import.meta.url).href,
   "tex_wood_deep_flat": new URL("./assets/sprite/sprite_tex-wood-deep-flat_58d4ad.webp", import.meta.url).href,
-  "tex_wood_warm": new URL("./assets/sprite/sprite_tex-wood-warm_febeca.webp", import.meta.url).href,
   "tex_wood_warm_flat": new URL("./assets/sprite/sprite_tex-wood-warm-flat_72c8d7.webp", import.meta.url).href,
 };
 
