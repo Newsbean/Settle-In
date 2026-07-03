@@ -1,0 +1,521 @@
+:root {
+  --ink: #5c3b48;
+  --ink-soft: #8a6b74;
+  --paper: #f6ecdd;
+  --paper-warm: #f3e2c9;
+  --rose: #e7a9a0;
+  --rose-deep: #d98b82;
+  --gold: #f0c55f;
+  --sky: #8bb8c7;
+  --ok: #7ba36b;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #e8d8c2;
+  font-family: 'Trebuchet MS', 'Segoe UI', system-ui, sans-serif;
+  color: var(--ink);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#app {
+  position: fixed;
+  inset: 0;
+}
+
+#game-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+  outline: none;
+}
+
+#ui-root {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Only genuinely interactive, visible elements capture pointer input. Everything
+   else (crosshair, prompt-when-hidden, ribbons, toasts) must let clicks fall
+   through to the game canvas — otherwise an invisible element swallows drags. */
+.pill-btn,
+.curtain,
+.hintcard,
+.shoppanel,
+.prompt.show {
+  pointer-events: auto;
+}
+
+/* Crosshair (walk mode) */
+.crosshair {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  margin: -5px 0 0 -5px;
+  border-radius: 50%;
+  border: 2px solid rgba(92, 59, 72, 0.5);
+  background: rgba(255, 240, 210, 0.35);
+  transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+  pointer-events: none;
+}
+.crosshair.hot {
+  transform: scale(1.7);
+  background: rgba(240, 197, 95, 0.7);
+  border-color: rgba(92, 59, 72, 0.8);
+}
+
+/* Interaction prompt */
+.prompt {
+  position: absolute;
+  left: 50%;
+  top: 62%;
+  transform: translateX(-50%);
+  padding: 10px 18px;
+  background: rgba(246, 236, 221, 0.94);
+  border: 2px solid var(--rose-deep);
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
+  box-shadow: 0 6px 18px rgba(92, 59, 72, 0.18);
+  opacity: 0;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.prompt.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-4px);
+}
+.prompt .key {
+  display: inline-block;
+  min-width: 22px;
+  padding: 1px 7px;
+  margin-right: 6px;
+  background: var(--gold);
+  border-radius: 6px;
+  font-weight: 800;
+  text-align: center;
+}
+
+/* Task checklist (top-right) */
+.tasklist {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 224px;
+  max-height: calc(100vh - 32px);
+  display: flex;
+  flex-direction: column;
+  padding: 12px 14px 10px;
+  background: rgba(246, 236, 221, 0.92);
+  border: 2px solid var(--rose);
+  border-radius: 16px;
+  box-shadow: 0 8px 22px rgba(92, 59, 72, 0.16);
+}
+.tasklist h2 {
+  margin: 0 0 6px;
+  flex: 0 0 auto;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+  color: var(--rose-deep);
+}
+.tasklist ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.tasklist li {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 3px 0;
+  font-size: 13.5px;
+  line-height: 1.2;
+  color: var(--ink-soft);
+  transition: color 0.2s ease;
+}
+.tasklist li .box {
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--rose-deep);
+  border-radius: 5px;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  color: transparent;
+}
+.tasklist li.done {
+  color: var(--ink);
+  text-decoration: line-through;
+  text-decoration-color: rgba(123, 163, 107, 0.7);
+}
+.tasklist li.done .box {
+  background: var(--ok);
+  border-color: var(--ok);
+  color: #f6ecdd;
+}
+.tasklist li.active {
+  color: var(--ink);
+  font-weight: 700;
+}
+.tasklist li.current .box {
+  background: rgba(240, 197, 95, 0.5);
+  box-shadow: 0 0 0 4px rgba(240, 197, 95, 0.16);
+}
+.tasklist li.current .label {
+  color: var(--ink);
+}
+
+/* Walk-mode guide */
+.guide {
+  position: absolute;
+  left: 16px;
+  bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  max-width: min(320px, calc(100vw - 32px));
+  padding: 10px 14px 10px 10px;
+  background: rgba(246, 236, 221, 0.94);
+  border: 2px solid var(--rose);
+  border-radius: 16px;
+  box-shadow: 0 8px 22px rgba(92, 59, 72, 0.16);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+}
+.guide.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+.guide-arrow {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--gold);
+  border: 2px solid rgba(92, 59, 72, 0.18);
+  transition: transform 0.12s ease;
+}
+.guide-arrow::before {
+  content: '';
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 13px solid var(--ink);
+  transform: translateY(-2px);
+}
+.guide-copy {
+  min-width: 0;
+}
+.guide-title {
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.15;
+}
+.guide-distance {
+  margin-top: 2px;
+  color: var(--ink-soft);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* Focus (minigame) instruction ribbon */
+.focus-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 8%;
+  transform: translateX(-50%);
+  padding: 9px 18px;
+  background: rgba(92, 59, 72, 0.86);
+  color: var(--paper);
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 600;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+  text-align: center;
+  max-width: 80vw;
+}
+.focus-hint.show {
+  opacity: 1;
+}
+
+/* Buttons (exit focus, hint) */
+.pill-btn {
+  position: absolute;
+  padding: 9px 16px;
+  background: rgba(246, 236, 221, 0.95);
+  border: 2px solid var(--rose-deep);
+  border-radius: 999px;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(92, 59, 72, 0.16);
+}
+.pill-btn:active {
+  transform: translateY(1px);
+}
+.btn-back {
+  top: 16px;
+  left: 16px;
+}
+.btn-hint {
+  bottom: 20px;
+  right: 20px;
+}
+
+/* Start / welcome curtain */
+.curtain {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 50% 40%, #f6ecdd 0%, #e7cdb2 100%);
+  transition: opacity 0.6s ease;
+  z-index: 10;
+}
+.curtain.hide {
+  opacity: 0;
+  pointer-events: none;
+}
+.curtain .card {
+  text-align: center;
+  max-width: 440px;
+  padding: 0 24px;
+}
+.curtain h1 {
+  font-size: 42px;
+  margin: 0 0 6px;
+  color: var(--rose-deep);
+  letter-spacing: 0.01em;
+}
+.curtain p {
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  margin: 0 0 22px;
+}
+.curtain .go {
+  display: inline-block;
+  padding: 13px 34px;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--paper);
+  background: var(--rose-deep);
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(92, 59, 72, 0.22);
+}
+.curtain .controls {
+  margin-top: 20px;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+
+/* Toast (chime moments, welcome home) */
+.toast {
+  position: absolute;
+  left: 50%;
+  top: 18%;
+  transform: translate(-50%, -8px);
+  padding: 12px 26px;
+  background: rgba(240, 197, 95, 0.95);
+  color: var(--ink);
+  border-radius: 999px;
+  font-size: 18px;
+  font-weight: 800;
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+  box-shadow: 0 8px 22px rgba(92, 59, 72, 0.2);
+}
+.toast.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* Scratch-to-reveal hint card */
+.hintcard {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(60, 40, 48, 0.5);
+  z-index: 8;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.hintcard.show {
+  opacity: 1;
+}
+.hintcard .frame {
+  position: relative;
+  background: var(--paper);
+  border: 6px solid var(--trim, #c98964);
+  border-radius: 10px;
+  padding: 14px;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+}
+.hintcard canvas {
+  display: block;
+  border-radius: 4px;
+  touch-action: none;
+  cursor: crosshair;
+}
+.hintcard .cap {
+  text-align: center;
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin-top: 8px;
+}
+.hintcard .close {
+  margin-top: 10px;
+  width: 100%;
+}
+
+/* The online furniture shop (laptop by the front door) */
+.shoppanel {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(60, 40, 48, 0.45);
+  z-index: 8;
+  opacity: 0;
+  transition: opacity 0.22s ease;
+}
+.shoppanel.show {
+  opacity: 1;
+}
+.shop-card {
+  width: min(420px, calc(100vw - 32px));
+  max-height: min(78vh, 560px);
+  display: flex;
+  flex-direction: column;
+  background: var(--paper);
+  border: 3px solid var(--rose-deep);
+  border-radius: 16px;
+  padding: 16px 18px;
+  box-shadow: 0 16px 44px rgba(92, 59, 72, 0.35);
+}
+.shop-head {
+  margin-bottom: 10px;
+}
+.shop-brand {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+.shop-brand span {
+  color: var(--rose-deep);
+}
+.shop-tag {
+  font-size: 12px;
+  color: var(--ink-soft);
+  font-style: italic;
+}
+.shop-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  flex: 1;
+}
+.shop-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 4px;
+  border-bottom: 1px dashed rgba(201, 137, 100, 0.4);
+  font-size: 14.5px;
+  font-weight: 600;
+}
+.shop-item.st-locked .shop-name,
+.shop-item.st-placed .shop-name {
+  color: var(--ink-soft);
+}
+.order-btn {
+  padding: 4px 16px;
+  border: 2px solid var(--rose-deep);
+  border-radius: 10px;
+  background: var(--gold);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+.order-btn:hover {
+  transform: translateY(-1px);
+}
+.chip {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+.chip.gold {
+  color: #a4762a;
+}
+.chip.ok {
+  color: var(--ok);
+}
+.chip.dim {
+  font-style: italic;
+  font-weight: 500;
+}
+.shop-close {
+  position: relative; /* .pill-btn is absolute; keep this one in the card flow */
+  margin-top: 12px;
+  width: 100%;
+}
+
+@media (max-width: 560px) {
+  .tasklist {
+    top: 12px;
+    right: 12px;
+    width: min(220px, calc(100vw - 24px));
+    padding: 10px 12px;
+    border-radius: 14px;
+  }
+  .tasklist h2 {
+    margin-bottom: 6px;
+    font-size: 13px;
+  }
+  .tasklist li {
+    display: none;
+    font-size: 13px;
+    padding: 2px 0;
+  }
+  .tasklist li.current {
+    display: flex;
+  }
+}

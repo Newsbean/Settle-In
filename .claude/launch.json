@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "settle-in",
+      "runtimeExecutable": "bun",
+      "runtimeArgs": ["x", "vite"],
+      "port": 5188,
+      "autoPort": true
+    }
+  ]
+}

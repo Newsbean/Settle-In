@@ -1,0 +1,19 @@
+{
+  "name": "settle-in",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Settle In — a cozy moving-in game fusing House Flipper's first-person walkaround and diegetic assembly with A Little to the Left's snap-satisfaction organizing.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@babylonjs/core": "^8.38.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.3",
+    "vite": "npm:rolldown-vite@7.3.1"
+  }
+}
